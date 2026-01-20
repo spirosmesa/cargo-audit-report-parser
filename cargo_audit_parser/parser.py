@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-def parse_cargo_vulnerabilities_list(vulns_list: list) -> list[dict, Any]:
+def parse_cargo_vulnerabilities_list(vulns_list: list) -> list[dict]:
     """
     Parses the cargo vulnerabilities list generates list of printable values.
     
@@ -12,13 +12,12 @@ def parse_cargo_vulnerabilities_list(vulns_list: list) -> list[dict, Any]:
     vulnerability.
     :rtype: list[dict, Any]
     """
-    
     logger = logging.getLogger(__name__)
 
     def _construct_affected_functions_string_(functions_dict: dict) -> str:
         outStr = ""
         for function, versions in functions_dict.items():
-            outStr += function + " # ".join([version for version in versions])
+            outStr += function + "\n".join([version for version in versions])
             outStr += "\n"
         
         # Return constructed string without the final new line.
@@ -37,21 +36,21 @@ def parse_cargo_vulnerabilities_list(vulns_list: list) -> list[dict, Any]:
                 "Package Source (URL)": vuln["package"]["source"].replace("registry+", ""),
                 # The date the vulnerability was first discovered in the wild.
                 "Date First Discovered": vuln["advisory"]["date"],
-                # Any aliases of the vulnerability, seperated by ` # `.
-                "Vulnerability Aliases": " # ".join(alias for alias in vuln["advisory"]["aliases"]) if len(vuln["advisory"]["aliases"]) else "",
-                # Any vulnerability categories seperated by ` # `.
-                "Vulnerability Categories": " # ".join(category for category in vuln["advisory"]["categories"]) if len(vuln["advisory"]["categories"]) else "",
-                # Any vulnerability references seperated by ` # `.
-                "Vulnerability References": " # ".join(reference for reference in vuln["advisory"]["references"]) if len(vuln["advisory"]["references"]) else "",
+                # Any aliases of the vulnerability, seperated by `\n`.
+                "Vulnerability Aliases": "\n".join(alias for alias in vuln["advisory"]["aliases"]) if len(vuln["advisory"]["aliases"]) else "",
+                # Any vulnerability categories seperated by `\n`.
+                "Vulnerability Categories": "\n".join(category for category in vuln["advisory"]["categories"]) if len(vuln["advisory"]["categories"]) else "",
+                # Any vulnerability references seperated by `\n`.
+                "Vulnerability References": "\n".join(reference for reference in vuln["advisory"]["references"]) if len(vuln["advisory"]["references"]) else "",
                 # "Registry source where the vulnerability is created."
                 "Vulnerability Source": vuln["advisory"]["source"].replace("registry+", "") if vuln["advisory"]["source"] else "",
                 "Vulnerability URL": vuln["advisory"]["url"],
                 # Whether or not the vulnerability has been withdrawn
                 "Vulnerability Withdrawn": vuln["advisory"]["withdrawn"],
                 # Any patched versions for the component.
-                "Patched Versions": " # ".join(version for version in vuln["versions"]["patched"]) if len(vuln["versions"]["patched"]) else "",
+                "Patched Versions": "\n".join(version for version in vuln["versions"]["patched"]) if len(vuln["versions"]["patched"]) else "",
                 # Any known unaffected versions
-                "Unaffected Versions": " # ".join(version for version in vuln["versions"]["unaffected"]) if len(vuln["versions"]["unaffected"]) else "",
+                "Unaffected Versions": "\n".join(version for version in vuln["versions"]["unaffected"]) if len(vuln["versions"]["unaffected"]) else "",
             }
         except Exception as e:
             logger.exception(f"Exception parsing vulnerability index {vuln_index}.")
@@ -63,8 +62,8 @@ def parse_cargo_vulnerabilities_list(vulns_list: list) -> list[dict, Any]:
             if vuln["affected"]:
                 try:
                     affectedDict = {
-                        "Affected Architecture": " # ".join([arch for arch in vuln["affected"]["arch"]]) if len(vuln["affected"]["arch"]) else "",
-                        "Affected OS(es)": " # ".join([arch for arch in vuln["affected"]["os"]]) if len(vuln["affected"]["os"]) else "",
+                        "Affected Architecture": "\n".join([arch for arch in vuln["affected"]["arch"]]) if len(vuln["affected"]["arch"]) else "",
+                        "Affected OS(es)": "\n".join([arch for arch in vuln["affected"]["os"]]) if len(vuln["affected"]["os"]) else "",
                         "Affected Functions": _construct_affected_functions_string_(vuln["affected"]["functions"]) if len(vuln["affected"]["functions"]) else ""
                     }
                 except Exception as e:
