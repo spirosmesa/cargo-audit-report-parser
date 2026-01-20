@@ -1,1 +1,2 @@
 cargo_audit_parser/log_output/*
+cargo_audit_parser/__pycache__/
