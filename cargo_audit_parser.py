@@ -24,3 +24,17 @@ def get_cargo_vulnerabilities_row_description() -> list[Tuple[str, str]]:
             ("Patched Versions", "A list of patched versions for the component, if any exist."),
             ("Unaffected Versions", "A list of known unaffected versions, if any exist."),
     ]
+
+def get_cargo_affected_vulnerabilities_row_descriptions() -> list[Tuple[str, str]]:
+    """
+    Return a list of tuples, each containing the name of the columns that correspond
+    to the `affected` section of the generated report, alongside their des
+    
+    :return: Description
+    :rtype: list[Tuple[str, str]]
+    """
+    return [
+        ("Affected Architecture", "A list of any known affected architectures, delimited by ` # `."),
+        ("Affected OS(es)", "A list of any known affected OSes, delimited by ` # `."),
+        ("Affected Functions", "A list of any known affected functions, delimited by ` # `."),
+    ]
