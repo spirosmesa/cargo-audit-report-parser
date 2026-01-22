@@ -33,11 +33,15 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
     """
     def __write_to_sheet__(ws):        
         for index in range(0, len(descriptors)):
-            titleLoc = f"A{index+1}"
-            descLoc = f"B{index+1}"
+            titleLoc = f"A{index+2}"
+            descLoc = f"B{index+2}"
 
             ws[titleLoc] = descriptors[index][0]
             ws[descLoc] = descriptors[index][1]
+
+    def __write_header__(ws):
+        ws["A1"] = "Column Name"
+        ws["B1"] = "Column Description"
 
     sheetTitle = "Cargo Column Descriptors"
     if sheetTitle in wb.sheetnames:
@@ -47,6 +51,7 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
         for row in ws.rows:
             for cell in row:
                 cell.value = None
+        __write_header__(ws)
         __write_to_sheet__(ws)
 
     else:
