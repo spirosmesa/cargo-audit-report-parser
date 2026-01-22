@@ -22,7 +22,25 @@ def _open_or_create_workbook(filepath: str) -> Workbook:
     else:
         return Workbook()
 
-def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> None:
+def _reset_ws_contents(ws):
+    """
+    Delete the values of the cells of a Worksheet and reset the style.
+    
+    :param ws: The Worksheet to work with.
+    """
+    # delete existing contents
+    for row in ws.rows:
+        for cell in row:
+            # Resetting the cell.
+            cell.value = None
+            cell.font = Font()
+            cell.border = Border()
+            cell.alignment = Alignment()
+            cell.fill = PatternFill()
+            cell.protection = Protection()
+            cell.number_format = "General"
+
+def _write_row_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> None:
     """
     Write column descriptors in the provided `wb` object, in a sheet named `Cargo Column Descriptors`.
     If the sheet already exists, delete its contents first.
@@ -41,8 +59,8 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
             ws[descLoc] = descriptors[index][1]
 
     def __write_header__(ws):
-        ws["A1"] = "Column Name"
-        ws["B1"] = "Column Description"
+        ws["A1"] = "Row Name"
+        ws["B1"] = "Row Description"
     
     def __style_header__(ws):
         for col in ["A", "B"]:
@@ -87,29 +105,17 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
                 )
             break
              
-    sheetTitle = "Cargo Column Descriptors"
+    sheetTitle = "Cargo Row Descriptors"
     if sheetTitle in wb.sheetnames:
         ws = wb[sheetTitle]
-
-        # delete existing contents
-        for row in ws.rows:
-            for cell in row:
-                # Resetting the cell.
-                cell.value = None
-                cell.font = Font()
-                cell.border = Border()
-                cell.alignment = Alignment()
-                cell.fill = PatternFill()
-                cell.protection = Protection()
-                cell.number_format = "General"
-
+        _reset_ws_contents(ws)
         __write_header__(ws)
         __write_to_sheet__(ws)
         __style_header__(ws)
         __style__title_column__(ws)
 
     else:
-        ws = wb.create_sheet(title = "Cargo Column Descriptors")
+        ws = wb.create_sheet(title = "Cargo Row Descriptors")
         __write_header__(ws)
         __write_to_sheet__(ws)
         __style_header__(ws)
@@ -126,6 +132,13 @@ def _workbook_cleanup_(wb: Workbook):
         del wb["Sheet"]
     
 def _write_cargo_results_(cargo_results: list[dict[str, Any]], wb: Workbook):
+    sheetTitle = "Cargo Audit Results"
+    if sheetTitle in wb.sheetnames:
+        ws = wb[sheetTitle]
+        _reset_ws_contents(ws)
+    else:
+        ws = wb.create_sheet(sheetTitle)
+    
     pass
 
 def _resize_columns_(wb: Workbook):
@@ -144,7 +157,7 @@ def _resize_columns_(wb: Workbook):
 
 def write_to_workbook(cargo_results: dict[str, Any], 
         filepath: str, 
-        column_descriptors: list[Tuple[str, str]] | None = None) -> None:
+        row_descriptors: list[Tuple[str, str]] | None = None) -> None:
     """
     Write the cargo results to a XLSX file. The method optionally writes the
     column descriptors to the file in a new tab.
@@ -153,18 +166,16 @@ def write_to_workbook(cargo_results: dict[str, Any],
     :type cargo_results: dict[str, Any]
     :param filepath: The filepath of the file to write to.
     :type filepath: str
-    :param column_descriptors: The column descriptors to write in a sheet named
-    `Cargo Column Descriptors`. If the exists it is erased first.
-    :type column_descriptors: list[Tuple[str, str]] | None
+    :param row_descriptors: The row descriptors to write in a sheet named
+    `Cargo Row Descriptors`. If the exists it is erased first.
+    :type row_descriptors: list[Tuple[str, str]] | None
     """
     activeWb = _open_or_create_workbook(filepath)
 
-    if column_descriptors:
-        _write_col_descriptors(activeWb, column_descriptors)
-
-    # TODO: Write cargo results
-    # TODO: Resize columns to fit cell contents.
-
+    if row_descriptors:
+        _write_row_descriptors(activeWb, row_descriptors)
+        
+    _write_cargo_results_(cargo_results, activeWb)
     _workbook_cleanup_(activeWb)
     _resize_columns_(activeWb)
     activeWb.save(filepath)
