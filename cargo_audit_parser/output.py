@@ -67,7 +67,18 @@ def _write_cargo_results_(cargo_results: list[dict[str, Any]], wb: Workbook):
     pass
 
 def _resize_columns_(wb: Workbook):
-    pass
+    for name in wb.sheetnames:
+        ws = wb[name]
+        
+        for cells in ws.columns:
+            max_length = 0
+            column_letter = cells[0].column_letter
+
+            for cell in cells:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            
+            ws.column_dimensions[column_letter].width = max_length
 
 def write_to_workbook(cargo_results: dict[str, Any], 
         filepath: str, 
@@ -93,6 +104,7 @@ def write_to_workbook(cargo_results: dict[str, Any],
     # TODO: Resize columns to fit cell contents.
 
     _workbook_cleanup_(activeWb)
+    _resize_columns_(activeWb)
     activeWb.save(filepath)
 
 
