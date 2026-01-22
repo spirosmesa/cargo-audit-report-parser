@@ -1,3 +1,5 @@
+from typing import Tuple
+
 def get_cargo_vulnerabilities_col_descriptions() -> list[Tuple[str, str]]:
     """
     Get a list of tuples, each containing the a column name and a column description.
@@ -36,3 +38,15 @@ def get_cargo_affected_vulnerabilities_col_descriptions() -> list[Tuple[str, str
         ("Affected OS(es)", "A list of any known affected OSes, delimited by `\n`."),
         ("Affected Functions", "A list of any known affected functions, delimited by `\n`."),
     ]
+
+def get_cargo_all_col_descriptions() -> list[Tuple[str, str]]:
+    """
+    Get all of the column descriptors for all of the cargo results in a list of tuples.
+    For each tuple, the first element is the column name and the second element the column
+    description.
+    
+    :return: A list containing the aforementioned tuples. 
+    :rtype: list[Tuple[str, str]]
+    """
+    return get_cargo_affected_vulnerabilities_col_descriptions().\
+        extend(get_cargo_affected_vulnerabilities_col_descriptions())
