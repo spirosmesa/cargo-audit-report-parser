@@ -1,4 +1,5 @@
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill, Protection
 from pathlib import Path
 from typing import Any
 from typing import Tuple
@@ -42,7 +43,50 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
     def __write_header__(ws):
         ws["A1"] = "Column Name"
         ws["B1"] = "Column Description"
+    
+    def __style_header__(ws):
+        for col in ["A", "B"]:
+            ws[f"{col}1"].font = Font(
+                size = 14,
+                bold = True,
+            )
 
+            ws[f"{col}1"].alignment = Alignment(
+                horizontal='center',
+                vertical='center'
+            )
+
+            thin = Side(style='thin')
+            ws[f"{col}1"].border = Border(
+                top=thin,
+                bottom = Side(style='medium'),
+                left=thin,
+                right=thin
+            )
+
+            ws[f"{col}1"].fill = PatternFill(
+                fill_type="solid",
+                start_color="d84e85",
+                end_color="d84e85"
+            )
+    
+    def __style__title_column__(ws):
+        for column in ws.columns:
+            for cell in column:
+                if cell.coordinate == "A1":
+                    continue
+                if not cell.value:
+                    break
+                if cell.col_idx == 2:
+                    break
+                
+                cell.fill = PatternFill(
+                    fill_type="solid",
+                    start_color="e8650d",
+                    end_color="e8650d"
+                )
+            break
+             
     sheetTitle = "Cargo Column Descriptors"
     if sheetTitle in wb.sheetnames:
         ws = wb[sheetTitle]
@@ -50,13 +94,26 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
         # delete existing contents
         for row in ws.rows:
             for cell in row:
+                # Resetting the cell.
                 cell.value = None
+                cell.font = Font()
+                cell.border = Border()
+                cell.alignment = Alignment()
+                cell.fill = PatternFill()
+                cell.protection = Protection()
+                cell.number_format = "General"
+
         __write_header__(ws)
         __write_to_sheet__(ws)
+        __style_header__(ws)
+        __style__title_column__(ws)
 
     else:
         ws = wb.create_sheet(title = "Cargo Column Descriptors")
+        __write_header__(ws)
         __write_to_sheet__(ws)
+        __style_header__(ws)
+        __style__title_column__(ws)
 
 def _workbook_cleanup_(wb: Workbook):
     """
