@@ -48,5 +48,5 @@ def get_cargo_all_col_descriptions() -> list[Tuple[str, str]]:
     :return: A list containing the aforementioned tuples. 
     :rtype: list[Tuple[str, str]]
     """
-    return get_cargo_affected_vulnerabilities_col_descriptions().\
-        extend(get_cargo_affected_vulnerabilities_col_descriptions())
+    return get_cargo_vulnerabilities_col_descriptions() + \
+        get_cargo_affected_vulnerabilities_col_descriptions()
