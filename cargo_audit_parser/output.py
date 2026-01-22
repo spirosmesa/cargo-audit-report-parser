@@ -53,6 +53,17 @@ def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
         ws = wb.create_sheet(title = "Cargo Column Descriptors")
         __write_to_sheet__(ws)
 
+def _workbook_cleanup_(wb: Workbook):
+    """
+    Remove the default sheet in the workbook named `Sheet`, if exists.
+    
+    :param wb: The `Workbook` object to manipulate.
+    :type wb: Workbook
+    """
+    if "Sheet" in wb.sheetnames:
+        del wb["Sheet"]
+    
+
 def write_to_workbook(cargo_results: dict[str, Any], 
         filepath: str, 
         column_descriptors: list[Tuple[str, str]] | None = None) -> None:
@@ -78,6 +89,7 @@ def write_to_workbook(cargo_results: dict[str, Any],
     # TODO: Resize columns to fit cell contents.
     # TODO: Style based on findings and scan date.
 
+    _workbook_cleanup_(activeWb)
     activeWb.save(filepath)
 
 
