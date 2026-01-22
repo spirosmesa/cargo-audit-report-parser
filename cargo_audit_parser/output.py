@@ -63,6 +63,11 @@ def _workbook_cleanup_(wb: Workbook):
     if "Sheet" in wb.sheetnames:
         del wb["Sheet"]
     
+def _write_cargo_results_(cargo_results: list[dict[str, Any]], wb: Workbook):
+    pass
+
+def _resize_columns_(wb: Workbook):
+    pass
 
 def write_to_workbook(cargo_results: dict[str, Any], 
         filepath: str, 
@@ -85,9 +90,7 @@ def write_to_workbook(cargo_results: dict[str, Any],
         _write_col_descriptors(activeWb, column_descriptors)
 
     # TODO: Write cargo results
-    # TODO: Remove default sheet named "Sheet"
     # TODO: Resize columns to fit cell contents.
-    # TODO: Style based on findings and scan date.
 
     _workbook_cleanup_(activeWb)
     activeWb.save(filepath)
