@@ -21,26 +21,63 @@ def _open_or_create_workbook(filepath: str) -> Workbook:
     else:
         return Workbook()
 
-def _write_col_descriptors(wb: Workbook) -> None:
-    pass
+def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> None:
+    """
+    Write column descriptors in the provided `wb` object, in a sheet named `Cargo Column Descriptors`.
+    If the sheet already exists, delete its contents first.
+    
+    :param wb: The `Workbook` object to write to.
+    :type wb: Workbook
+    :param descriptors: The list of column descriptors to write.
+    :type descriptors: list[Tuple[str, str]]
+    """
+    def __write_to_sheet__(ws):        
+        for index in range(0, len(descriptors)):
+            titleLoc = f"A{index+1}"
+            descLoc = f"B{index+1}"
+
+            ws[titleLoc] = descriptors[index][0]
+            ws[descLoc] = descriptors[index][1]
+
+    sheetTitle = "Cargo Column Descriptors"
+    if sheetTitle in wb.sheetnames:
+        ws = wb[sheetTitle]
+
+        # delete existing contents
+        for row in ws.rows:
+            for cell in row:
+                cell.value = None
+        __write_to_sheet__(ws)
+
+    else:
+        ws = wb.create_sheet(title = "Cargo Column Descriptors")
+        __write_to_sheet__(ws)
 
 def write_to_workbook(cargo_results: dict[str, Any], 
         filepath: str, 
-        col_descs: list[Tuple[str, str]] | None = None) -> None:
+        column_descriptors: list[Tuple[str, str]] | None = None) -> None:
     """
     Write the cargo results to a XLSX file. The method optionally writes the
     column descriptors to the file in a new tab.
     
-    :param cargo_results: Description
+    :param cargo_results: The processed results obtained from `cargo-audit`.
     :type cargo_results: dict[str, Any]
-    :param filepath: Description
+    :param filepath: The filepath of the file to write to.
     :type filepath: str
-    :param write_col_descs: Description
-    :type write_col_descs: bool
+    :param column_descriptors: The column descriptors to write in a sheet named
+    `Cargo Column Descriptors`. If the exists it is erased first.
+    :type column_descriptors: list[Tuple[str, str]] | None
     """
     activeWb = _open_or_create_workbook(filepath)
 
-    if col_descs:
+    if column_descriptors:
+        _write_col_descriptors(activeWb, column_descriptors)
 
+    # TODO: Write cargo results
+    # TODO: Remove default sheet named "Sheet"
+    # TODO: Resize columns to fit cell contents.
+    # TODO: Style based on findings and scan date.
+
+    activeWb.save(filepath)
 
 

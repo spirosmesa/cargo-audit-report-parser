@@ -13,7 +13,7 @@ def get_cargo_vulnerabilities_col_descriptions() -> list[Tuple[str, str]]:
             ("Package Version", "The version of the vulnerable package."),
             ("Vulnerability Title", "The title of the vulnerability."),
             ("Description", "A description of the vulnerability."),
-            ("Package Source (URL)", "The URL of the package. Most frequently a GH link."),
+            ("Package Source (URL)", "The URL of the package. Most frequently a GitHub link."),
             ("Date First Discovered", "The date the vulnerability was first discovered in the wild."),
             ("Vulnerability Aliases", "A list of any known vulnerability aliases, seperated by a newline."),
             ("Vulnerability Categories", "A list of categories that fit vulnerability, seperated by a newline"),
