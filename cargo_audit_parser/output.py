@@ -176,8 +176,11 @@ def _workbook_cleanup_(wb: Workbook):
         del wb["Sheet"]
     
 def _write_cargo_vulnerability_results_(cargo_results: dict[str, Any], wb: Workbook):
-    def __write_header__(ws):
-        pass
+    column_letters = [
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+        "U", "V", "W", "X", "Y", "Z",
+    ]
 
     sheetTitle = "Cargo Audit Results"
     if sheetTitle in wb.sheetnames:
@@ -195,19 +198,15 @@ def _write_cargo_vulnerability_results_(cargo_results: dict[str, Any], wb: Workb
     col_descriptions = get_cargo_all_col_descriptions()
     _write_vulnerability_headers(ws, col_descriptions)
     _style_vulnerability_headers(ws)
-    # print(type(vulns[0])) # It is a dictionary, each holding a vulnerability
     
     # Get the indexes to write to
     # Write titles, then values, then merge and blacken
-    for result_index in range(0, len(vulns)):
-        pass
-        '''
-        for each vuln dict:
-            write the titles on column A
-            write the values on column B
-        
-        '''
-    
+    for vuln_index in range(0, len(vulns)):
+        row = vuln_index + 2
+        vuln_values = list(vulns[vuln_index].values())
+        for value_index in range(0, len(vuln_values)):
+            ws[f"{column_letters[value_index]}{row}"] = vuln_values[value_index]
+
 def _resize_columns_(wb: Workbook):
     for name in wb.sheetnames:
         ws = wb[name]
@@ -215,13 +214,10 @@ def _resize_columns_(wb: Workbook):
         for cells in ws.columns:
             max_length = 0
             column_letter = cells[0].column_letter
-            print(f"sheet name: {name} letter: {column_letter}")
 
             for cell in cells:
                 if cell.value:
-                    print("  cell value")
                     max_length = max(max_length, len(str(cell.value)))
-                    print(f"    max length:{max_length}")
             ws.column_dimensions[column_letter].width = max_length
 
 
