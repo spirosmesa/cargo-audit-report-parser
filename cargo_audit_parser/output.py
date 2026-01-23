@@ -1,8 +1,11 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill, Protection
+from openpyxl.utils import get_column_letter
 from pathlib import Path
 from typing import Any
 from typing import Tuple
+from col_descriptors import get_cargo_all_col_descriptions
+
 
 def _open_or_create_workbook(filepath: str) -> Workbook:
     """
@@ -40,7 +43,78 @@ def _reset_ws_contents(ws):
             cell.protection = Protection()
             cell.number_format = "General"
 
-def _write_row_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> None:
+def _style_header(ws):
+    for col in ["A", "B"]:
+        ws[f"{col}1"].font = Font(
+            size = 14,
+            bold = True,
+        )
+
+        ws[f"{col}1"].alignment = Alignment(
+            horizontal='center',
+            vertical='center'
+        )
+
+        thin = Side(style='thin')
+        ws[f"{col}1"].border = Border(
+            top=thin,
+            bottom = Side(style='medium'),
+            left=thin,
+            right=thin
+        )
+
+        ws[f"{col}1"].fill = PatternFill(
+            fill_type="solid",
+            start_color="d84e85",
+            end_color="d84e85"
+        )
+
+def _write_header(ws, headers: list[str]):
+    ws["A1"] = headers[0]
+    ws["B1"] = headers[1]
+
+def _write_vulnerability_headers(ws, headers: list[str]):
+    col = [
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+        "U", "V", "W", "X", "Y", "Z",
+    ]
+
+    for header_index in range(0, len(headers)):
+        ws[f"{col[header_index]}1"] = headers[header_index][0]
+
+def _style_vulnerability_headers(ws):
+    '''font, size, fill, alignment'''
+    for col in ws.columns:
+        for cell in col:
+            if cell.row == 2:
+                break
+        
+            cell.font = Font(
+                size = 14,
+                bold = True,
+            )
+
+            cell.alignment = Alignment(
+                horizontal='center',
+                vertical='center'
+            )
+
+            thin = Side(style='thin')
+            cell.border = Border(
+                top=thin,
+                bottom = Side(style='medium'),
+                left=thin,
+                right=thin
+            )
+
+            cell.fill = PatternFill(
+                fill_type="solid",
+                start_color="d84e85",
+                end_color="d84e85"
+            )
+
+def _write_col_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> None:
     """
     Write column descriptors in the provided `wb` object, in a sheet named `Cargo Column Descriptors`.
     If the sheet already exists, delete its contents first.
@@ -57,36 +131,6 @@ def _write_row_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
 
             ws[titleLoc] = descriptors[index][0]
             ws[descLoc] = descriptors[index][1]
-
-    def __write_header__(ws):
-        ws["A1"] = "Row Name"
-        ws["B1"] = "Row Description"
-    
-    def __style_header__(ws):
-        for col in ["A", "B"]:
-            ws[f"{col}1"].font = Font(
-                size = 14,
-                bold = True,
-            )
-
-            ws[f"{col}1"].alignment = Alignment(
-                horizontal='center',
-                vertical='center'
-            )
-
-            thin = Side(style='thin')
-            ws[f"{col}1"].border = Border(
-                top=thin,
-                bottom = Side(style='medium'),
-                left=thin,
-                right=thin
-            )
-
-            ws[f"{col}1"].fill = PatternFill(
-                fill_type="solid",
-                start_color="d84e85",
-                end_color="d84e85"
-            )
     
     def __style__title_column__(ws):
         for column in ws.columns:
@@ -109,16 +153,16 @@ def _write_row_descriptors(wb: Workbook, descriptors: list[Tuple[str, str]]) -> 
     if sheetTitle in wb.sheetnames:
         ws = wb[sheetTitle]
         _reset_ws_contents(ws)
-        __write_header__(ws)
+        _write_header(ws, ["Row Name", "Row Description"])
         __write_to_sheet__(ws)
-        __style_header__(ws)
+        _style_header(ws)
         __style__title_column__(ws)
 
     else:
-        ws = wb.create_sheet(title = "Cargo Row Descriptors")
-        __write_header__(ws)
+        ws = wb.create_sheet(title = sheetTitle)
+        _write_header(ws, ["Row Name", "Row Description"])
         __write_to_sheet__(ws)
-        __style_header__(ws)
+        _style_header(ws)
         __style__title_column__(ws)
 
 def _workbook_cleanup_(wb: Workbook):
@@ -131,7 +175,10 @@ def _workbook_cleanup_(wb: Workbook):
     if "Sheet" in wb.sheetnames:
         del wb["Sheet"]
     
-def _write_cargo_results_(cargo_results: list[dict[str, Any]], wb: Workbook):
+def _write_cargo_vulnerability_results_(cargo_results: dict[str, Any], wb: Workbook):
+    def __write_header__(ws):
+        pass
+
     sheetTitle = "Cargo Audit Results"
     if sheetTitle in wb.sheetnames:
         ws = wb[sheetTitle]
@@ -139,8 +186,28 @@ def _write_cargo_results_(cargo_results: list[dict[str, Any]], wb: Workbook):
     else:
         ws = wb.create_sheet(sheetTitle)
     
-    pass
-
+    if "vulnerabilities" not in cargo_results:
+        ws["A1"] = "No vulnerabilities found"
+        return
+    
+    _write_header(ws, ["Fields", "Details"])
+    vulns = cargo_results["vulnerabilities"]
+    col_descriptions = get_cargo_all_col_descriptions()
+    _write_vulnerability_headers(ws, col_descriptions)
+    _style_vulnerability_headers(ws)
+    # print(type(vulns[0])) # It is a dictionary, each holding a vulnerability
+    
+    # Get the indexes to write to
+    # Write titles, then values, then merge and blacken
+    for result_index in range(0, len(vulns)):
+        pass
+        '''
+        for each vuln dict:
+            write the titles on column A
+            write the values on column B
+        
+        '''
+    
 def _resize_columns_(wb: Workbook):
     for name in wb.sheetnames:
         ws = wb[name]
@@ -148,16 +215,19 @@ def _resize_columns_(wb: Workbook):
         for cells in ws.columns:
             max_length = 0
             column_letter = cells[0].column_letter
+            print(f"sheet name: {name} letter: {column_letter}")
 
             for cell in cells:
                 if cell.value:
+                    print("  cell value")
                     max_length = max(max_length, len(str(cell.value)))
-            
+                    print(f"    max length:{max_length}")
             ws.column_dimensions[column_letter].width = max_length
+
 
 def write_to_workbook(cargo_results: dict[str, Any], 
         filepath: str, 
-        row_descriptors: list[Tuple[str, str]] | None = None) -> None:
+        col_descriptors: bool = True) -> None:
     """
     Write the cargo results to a XLSX file. The method optionally writes the
     column descriptors to the file in a new tab.
@@ -166,16 +236,15 @@ def write_to_workbook(cargo_results: dict[str, Any],
     :type cargo_results: dict[str, Any]
     :param filepath: The filepath of the file to write to.
     :type filepath: str
-    :param row_descriptors: The row descriptors to write in a sheet named
-    `Cargo Row Descriptors`. If the exists it is erased first.
-    :type row_descriptors: list[Tuple[str, str]] | None
+    :param col_descriptors: Whether or not to write the column descriptors tab.
+    :type col_descriptors: bool. Defaults to True.
     """
     activeWb = _open_or_create_workbook(filepath)
 
-    if row_descriptors:
-        _write_row_descriptors(activeWb, row_descriptors)
+    if col_descriptors:
+        _write_col_descriptors(activeWb, get_cargo_all_col_descriptions())
         
-    _write_cargo_results_(cargo_results, activeWb)
+    _write_cargo_vulnerability_results_(cargo_results, activeWb)
     _workbook_cleanup_(activeWb)
     _resize_columns_(activeWb)
     activeWb.save(filepath)

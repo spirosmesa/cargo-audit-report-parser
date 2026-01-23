@@ -1,8 +1,8 @@
 from typing import Tuple
 
-def get_cargo_vulnerabilities_row_descriptions() -> list[Tuple[str, str]]:
+def get_cargo_vulnerabilities_col_descriptions() -> list[Tuple[str, str]]:
     """
-    Get a list of tuples, each containing the a row name and a row description.
+    Get a list of tuples, each containing the a col name and a col description.
     
     :return: Returns the list of tuples.
     :rtype: list[Tuple[str, str]]
@@ -25,9 +25,9 @@ def get_cargo_vulnerabilities_row_descriptions() -> list[Tuple[str, str]]:
             ("Unaffected Versions", "A list of known unaffected versions, if any exist."),
     ]
 
-def get_cargo_affected_vulnerabilities_row_descriptions() -> list[Tuple[str, str]]:
+def get_cargo_affected_vulnerabilities_col_descriptions() -> list[Tuple[str, str]]:
     """
-    Return a list of tuples, each containing the name of the rows that correspond
+    Return a list of tuples, each containing the name of the cols that correspond
     to the `affected` section of the generated report, alongside their des
     
     :return: Description
@@ -39,14 +39,14 @@ def get_cargo_affected_vulnerabilities_row_descriptions() -> list[Tuple[str, str
         ("Affected Functions", "A list of any known affected functions, delimited by a newline."),
     ]
 
-def get_cargo_all_row_descriptions() -> list[Tuple[str, str]]:
+def get_cargo_all_col_descriptions() -> list[Tuple[str, str]]:
     """
-    Get all of the row descriptors for all of the cargo results in a list of tuples.
-    For each tuple, the first element is the row name and the second element the row
+    Get all of the col descriptors for all of the cargo results in a list of tuples.
+    For each tuple, the first element is the col name and the second element the col
     description.
     
     :return: A list containing the aforementioned tuples. 
     :rtype: list[Tuple[str, str]]
     """
-    return get_cargo_vulnerabilities_row_descriptions() + \
-        get_cargo_affected_vulnerabilities_row_descriptions()
+    return get_cargo_vulnerabilities_col_descriptions() + \
+        get_cargo_affected_vulnerabilities_col_descriptions()

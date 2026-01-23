@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+from json import loads
 
 def parse_cargo_vulnerabilities_list(vulns_list: list) -> list[dict]:
     """
@@ -88,7 +89,7 @@ def parse_cargo_file(cargo_file_path: str) -> dict[str, Any]:
     logger = logging.getLogger(__name__)
     
     with open(cargo_file_path, "r", encoding='utf-8') as fd:
-        cons = json.loads(fd.read())
+        cons = loads(fd.read())
     
     logger.info(f"Opened contents of: {cargo_file_path}")
 
@@ -106,7 +107,7 @@ def parse_cargo_file(cargo_file_path: str) -> dict[str, Any]:
     # parse vulnerabilities
     if "vulnerabilities" in cons:
         if cons["vulnerabilities"]["found"]:
-            resultsDict["vulnerabities"] = parse_cargo_vulnerabilities_list(cons["vulnerabilities"]["list"])
+            resultsDict["vulnerabilities"] = parse_cargo_vulnerabilities_list(cons["vulnerabilities"]["list"])
             logger.info("`Parsed cargo vulnerabilities.`")
         else:
             logger.info("No vulnerabilities were found within the cargo report.")
